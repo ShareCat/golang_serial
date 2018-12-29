@@ -76,7 +76,7 @@ func check_temperature_humidity() {
 
     rd := bufio.NewReader(f)
     /* 按行读取log文件 */
-    for {
+    for { /* 等于while(1)，等于for true{ */
         line, err := rd.ReadString('\n') //以'\n'为结束符读入一行
 
         if err != nil || io.EOF == err {
@@ -132,12 +132,12 @@ func test_com() {
     c := &serial.Config{Name: "COM3", Baud: 115200}
     s, err := serial.OpenPort(c)
     if err != nil {
-            log.Fatal(err)
+        log.Fatal(err)
     }
     
     n, err := s.Write([]byte("test"))
     if err != nil {
-            log.Fatal(err)
+        log.Fatal(err)
     }
 
     /*
