@@ -13,12 +13,16 @@ import (
 
 import "time"
 
+/* log文件名字 */
 var filename = "./log1.txt"
 
 func init() {
     fmt.Println("go init!")
 }
 
+/**
+ * 错误检查
+ */
 func check(e error) {
     if e != nil {
         panic(e)
@@ -36,8 +40,11 @@ func checkFileIsExist(filename string) bool {
     return exist
 }
 
-// fileName:文件名字(带全路径)
-// content: 写入的内容
+/**
+ * 在文件最后写入
+ * fileName:文件名字(带全路径)
+ * content: 写入的内容
+ */
 func appendToFile(fileName string, content string) error {
     // 以只写的模式，打开文件
     f, err := os.OpenFile(fileName, os.O_WRONLY, 0644)
@@ -53,6 +60,9 @@ func appendToFile(fileName string, content string) error {
     return err
 }
 
+/**
+ * 检查数据
+ */
 func check_temperature_humidity() {
     //fmt.Println("check_temperature_humidity")
     var temperature bool = false
@@ -100,6 +110,9 @@ func check_temperature_humidity() {
     }
 }
 
+/**
+ * 删除log文件
+ */
 func log_file_delete() {
     var err1 error
 
@@ -108,6 +121,9 @@ func log_file_delete() {
     fmt.Println("log_file_delete")
 }
 
+/**
+ * 测试程序
+ */
 func test_com() {
 
     /*
