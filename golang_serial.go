@@ -118,7 +118,7 @@ func log_file_delete() {
 
     err1 = os.Remove(filename)
     check(err1)
-    fmt.Println("log_file_delete")
+    fmt.Println("log_file_delete \r\n\r\n\r\n")
 }
 
 /**
