@@ -19,6 +19,10 @@ func check(e error) {
     }
 }
 
+func printSlice(x []byte){
+    fmt.Printf("len=%d cap=%d slice=%v\n",len(x),cap(x),x)
+}
+
 /*
  * 判断一个文件夹或文件是否存在
  * 1 如果返回的错误为nil,说明文件或文件夹存在
@@ -37,8 +41,8 @@ func PathExists(path string) (bool, error) {
 }
 
 var ota_file_name string = "zigbee.ota"
-// 写入ota文件的特征头
-    var ota_head = []byte{  0x1E, 0xF1, 0xEE, 0x0B, 0x00, 0x01, 0x38, 0x00,
+// ota文件的特征头
+var ota_file_byte = []byte{ 0x1E, 0xF1, 0xEE, 0x0B, 0x00, 0x01, 0x38, 0x00,
                             0x00, 0x00, 0x37, 0x10, 0x01, 0x01, 0x03, 0x01,
                             0x00, 0x00, 0x02, 0x00, 0x44, 0x52, 0x31, 0x31,
                             0x37, 0x35, 0x72, 0x31, 0x76, 0x32, 0x2D, 0x2D,
@@ -46,6 +50,7 @@ var ota_file_name string = "zigbee.ota"
                             0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
                             0x30, 0x30, 0x30, 0x30, 0x72, 0x1F, 0x03, 0x00,
                             0x00, 0x00, 0xB2, 0x09, 0x03, 0x00}
+var ota_file_len int
 func make_ota_file() {
     //fmt.Println("make_ota_file")
     var exist bool
@@ -74,13 +79,17 @@ func make_ota_file() {
     for _, v := range bin_file_byte {
         count++
         if count > 4 { // 忽略bin文件前4个字节
-            ota_head = append(ota_head, v)
+            ota_file_byte = append(ota_file_byte, v)
         }
     }
-    printSlice(ota_head)
+    printSlice(ota_file_byte)
+
+    // 修改ota文件头里面的文件大小
+    ota_file_len = len(ota_file_byte)
+    fmt.Printf("ota_file_len = %d \r\n", ota_file_len)
 
     // 文件写入保存
-    err = ioutil.WriteFile(ota_file_name, ota_head, 0666) //写入文件(字节数组)
+    err = ioutil.WriteFile(ota_file_name, ota_file_byte, 0666) //写入文件(字节数组)
     check(err)
 
     f.Close()
@@ -140,10 +149,6 @@ func get_bin_file(name string) {
     bin_file_byte, err = ioutil.ReadAll(f)
     fmt.Println("Success Open File")
     bin_file_len = len(bin_file_byte)
-}
-
-func printSlice(x []byte){
-   fmt.Printf("len=%d cap=%d slice=%v\n",len(x),cap(x),x)
 }
 
 func main() {
