@@ -37,7 +37,15 @@ func PathExists(path string) (bool, error) {
 }
 
 var ota_file_name string = "zigbee.ota"
-
+// 写入ota文件的特征头
+    var ota_head = []byte{  0x1E, 0xF1, 0xEE, 0x0B, 0x00, 0x01, 0x38, 0x00,
+                            0x00, 0x00, 0x37, 0x10, 0x01, 0x01, 0x03, 0x01,
+                            0x00, 0x00, 0x02, 0x00, 0x44, 0x52, 0x31, 0x31,
+                            0x37, 0x35, 0x72, 0x31, 0x76, 0x32, 0x2D, 0x2D,
+                            0x4A, 0x4E, 0x35, 0x31, 0x36, 0x39, 0x30, 0x30,
+                            0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+                            0x30, 0x30, 0x30, 0x30, 0x72, 0x1F, 0x03, 0x00,
+                            0x00, 0x00, 0xB2, 0x09, 0x03, 0x00}
 func make_ota_file() {
     //fmt.Println("make_ota_file")
     var exist bool
@@ -56,24 +64,26 @@ func make_ota_file() {
         err = err // 为了防止报错，提示err这个定义了但是没有使用
     }
 
-    // 可以创建目标文件了
+    // 可以创建目标ota文件了
     var f *os.File
     f, err = os.Create(ota_file_name) // 创建文件
     check(err)
-    // 写入ota文件的特征头
-    var ota_head = []byte{  0x1E, 0xF1, 0xEE, 0x0B, 0x00, 0x01, 0x38, 0x00,
-                            0x00, 0x00, 0x37, 0x10, 0x01, 0x01, 0x03, 0x01,
-                            0x00, 0x00, 0x02, 0x00, 0x44, 0x52, 0x31, 0x31,
-                            0x37, 0x35, 0x72, 0x31, 0x76, 0x32, 0x2D, 0x2D,
-                            0x4A, 0x4E, 0x35, 0x31, 0x36, 0x39, 0x30, 0x30,
-                            0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-                            0x30, 0x30, 0x30, 0x30, 0x72, 0x1F, 0x03, 0x00,
-                            0x00, 0x00, 0xB2, 0x09, 0x03, 0x00}
+
+    // 复制bin文件到ota文件，注意忽略bin文件前4个字节
+    var count int = 0
+    for _, v := range bin_file_byte {
+        count++
+        if count > 4 { // 忽略bin文件前4个字节
+            ota_head = append(ota_head, v)
+        }
+    }
+    printSlice(ota_head)
+
+    // 文件写入保存
     err = ioutil.WriteFile(ota_file_name, ota_head, 0666) //写入文件(字节数组)
     check(err)
 
     f.Close()
-    
 }
 
 /*
@@ -132,6 +142,10 @@ func get_bin_file(name string) {
     bin_file_len = len(bin_file_byte)
 }
 
+func printSlice(x []byte){
+   fmt.Printf("len=%d cap=%d slice=%v\n",len(x),cap(x),x)
+}
+
 func main() {
     // 读取配置文件，得到目标bin文件名和版本
     bin_file_name, bin_file_version := get_config_file()
@@ -145,6 +159,7 @@ func main() {
     fmt.Printf("bin_file_byte[1] = 0x%02x \r\n", bin_file_byte[1])
     fmt.Printf("bin_file_byte[%d] = 0x%02x \r\n", bin_file_len - 2, bin_file_byte[bin_file_len - 2])
     fmt.Printf("bin_file_byte[%d] = 0x%02x \r\n", bin_file_len - 1, bin_file_byte[bin_file_len - 1])
+    //printSlice(bin_file_byte)
     // 生成目标ota文件
     make_ota_file()
 
