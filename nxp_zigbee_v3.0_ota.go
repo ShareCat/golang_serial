@@ -8,7 +8,6 @@ import (
     "bufio"
     "strings"
     "strconv"
-    "time"
 )
 
 /**
@@ -212,10 +211,4 @@ func main() {
 
     // 生成目标ota文件
     make_ota_file()
-
-
-
-    currentTime := time.Now()   //获取当前时间，类型是Go的时间类型Time
-    time.Sleep(time.Duration(1) * time.Second)
-    fmt.Println(currentTime)
 }
