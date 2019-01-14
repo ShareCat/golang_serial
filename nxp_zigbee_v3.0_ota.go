@@ -36,6 +36,7 @@ func get_config_file() (string, string) {
         } else if line_count == 2 {
             // 第二行是bin文件版本
             bin_file_version = line
+            break; // 后面的不需要读取了
         }
     }
     //fmt.Printf("line_count = %d \r\n", line_count)    // 打印读取文件的行数
