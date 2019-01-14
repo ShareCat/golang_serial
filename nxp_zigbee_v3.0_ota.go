@@ -86,7 +86,26 @@ func make_ota_file() {
 
     // 修改ota文件头里面的文件大小
     ota_file_len = len(ota_file_byte)
-    fmt.Printf("ota_file_len = %d \r\n", ota_file_len)
+    fmt.Printf("ota_file_len = 0x%08x (decimal: %d) \r\n", ota_file_len, ota_file_len)
+    v1 := ota_file_len / 0x1000000
+    v2 := (ota_file_len % 0x1000000) / 0x10000
+    v3 := (ota_file_len % 0x1000000) / 0x100
+    v4 := (ota_file_len % 0x100)
+    //fmt.Printf("v1~v4: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", v1, v2, v3, v4)
+    var index int = 0x34
+    //fmt.Printf("ota_file_byte: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x34], ota_file_byte[0x35], ota_file_byte[0x36], ota_file_byte[0x37])
+    ota_file_byte[index] = byte(v4)
+    index++
+    ota_file_byte[index] = byte(v3)
+    index++
+    ota_file_byte[index] = byte(v2)
+    index++
+    ota_file_byte[index] = byte(v1)
+    index++
+    //fmt.Printf("ota_file_byte: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x34], ota_file_byte[0x35], ota_file_byte[0x36], ota_file_byte[0x37])
+
+    // 修改ota文件头里面的版本
+
 
     // 文件写入保存
     err = ioutil.WriteFile(ota_file_name, ota_file_byte, 0666) //写入文件(字节数组)
