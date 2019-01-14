@@ -5,6 +5,7 @@ import (
     "os"
     "io"
     "bufio"
+    "strings"
     "time"
 )
 
@@ -40,17 +41,27 @@ func get_config_file() (string, string) {
     //fmt.Printf("line_count = %d \r\n", line_count)    // 打印读取文件的行数
     //fmt.Print("bin_file_name = ", bin_file_name)      // 打印bin文件名字
     //fmt.Print("bin_file_version = ", bin_file_version)// 打印bin文件版本
+    // 去掉每行末尾的"\r\n"得到真实的字符串
+    bin_file_name = strings.Replace(bin_file_name, "\r", "", -1)
+    bin_file_name = strings.Replace(bin_file_name, "\n", "", -1)
+    bin_file_version = strings.Replace(bin_file_version, "\r", "", -1)
+    bin_file_version = strings.Replace(bin_file_version, "\n", "", -1)
     return bin_file_name, bin_file_version
 }
 
 func get_bin_file(name string) {
-    fmt.Println("get_bin_file: ", name)
+    //fmt.Println("get_bin_file: ", name)
+    f, err := os.Open(name)
+    if err != nil {
+        panic(err)
+    }
+    defer f.Close()
 }
 
 func main() {
     bin_file_name, bin_file_version := get_config_file()
-    fmt.Print("bin_file_name = ", bin_file_name)      // 打印bin文件名字
-    fmt.Print("bin_file_version = ", bin_file_version)// 打印bin文件版本
+    fmt.Print("bin_file_name = ", bin_file_name, "\r\n")      // 打印bin文件名字
+    fmt.Print("bin_file_version = ", bin_file_version, "\r\n")// 打印bin文件版本
     get_bin_file(bin_file_name)
 
 
