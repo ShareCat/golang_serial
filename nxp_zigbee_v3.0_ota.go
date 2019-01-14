@@ -13,7 +13,7 @@ import (
  * 从配置文件获取目标bin文件的名字和版本
  */
 func get_config_file() (string, string) {
-    f, err := os.Open("config.txt")
+    f, err := os.Open("nxp_zigbee_v3.0_ota_config.txt")
     if err != nil {
         panic(err)
     }
