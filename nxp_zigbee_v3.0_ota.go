@@ -71,9 +71,9 @@ func make_ota_file() {
                             0x00, 0x00, 0xB2, 0x09, 0x03, 0x00}
     err = ioutil.WriteFile(ota_file_name, ota_head, 0666) //写入文件(字节数组)
     check(err)
+
     f.Close()
     
-
 }
 
 /*
@@ -117,30 +117,35 @@ func get_config_file() (string, string) {
     return bin_file_name, bin_file_version
 }
 
+var bin_file_byte []byte    // 保存读取的目标bin文件，十六进制
+var bin_file_len int        // 目标bin文件的大小
 func get_bin_file(name string) {
     //fmt.Println("get_bin_file: ", name)
     f, err := os.Open(name)
-     if err != nil {
+    if err != nil {
         panic(err)
-     }
-     defer f.Close()
+    }
+    defer f.Close()
 
-     var file_byte []byte
-     file_byte, err = ioutil.ReadAll(f)
-     fmt.Println("Success Open File")
-     fmt.Printf("file_byte[0] = %x \r\n", file_byte[0])
-     fmt.Printf("file_byte[1] = %x \r\n", file_byte[1])
-     file_len := len(file_byte)
-     fmt.Printf("file_len = %d \r\n", file_len)
-     fmt.Printf("file_byte[%d] = %x \r\n", file_len - 2, file_byte[file_len - 2])
-     fmt.Printf("file_byte[%d] = %x \r\n", file_len - 1, file_byte[file_len - 1])
+    bin_file_byte, err = ioutil.ReadAll(f)
+    fmt.Println("Success Open File")
+    bin_file_len = len(bin_file_byte)
 }
 
 func main() {
+    // 读取配置文件，得到目标bin文件名和版本
     bin_file_name, bin_file_version := get_config_file()
     fmt.Print("bin_file_name = ", bin_file_name, "\r\n")      // 打印bin文件名字
     fmt.Print("bin_file_version = ", bin_file_version, "\r\n")// 打印bin文件版本
+
+    // 读取目标bin文件到内存
     get_bin_file(bin_file_name)
+    fmt.Printf("bin_file_len = %d \r\n", bin_file_len)
+    fmt.Printf("bin_file_byte[0] = 0x%02x \r\n", bin_file_byte[0])
+    fmt.Printf("bin_file_byte[1] = 0x%02x \r\n", bin_file_byte[1])
+    fmt.Printf("bin_file_byte[%d] = 0x%02x \r\n", bin_file_len - 2, bin_file_byte[bin_file_len - 2])
+    fmt.Printf("bin_file_byte[%d] = 0x%02x \r\n", bin_file_len - 1, bin_file_byte[bin_file_len - 1])
+    // 生成目标ota文件
     make_ota_file()
 
 
