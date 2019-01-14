@@ -4,6 +4,7 @@ import (
     "fmt"
     "os"
     "io"
+    "io/ioutil"
     "bufio"
     "strings"
     "time"
@@ -53,10 +54,18 @@ func get_config_file() (string, string) {
 func get_bin_file(name string) {
     //fmt.Println("get_bin_file: ", name)
     f, err := os.Open(name)
-    if err != nil {
+     if err != nil {
         panic(err)
-    }
-    defer f.Close()
+     }
+     defer f.Close()
+
+     var file_byte []byte
+     file_byte, err = ioutil.ReadAll(f)
+     fmt.Println("Success Open File")
+     fmt.Printf("file_byte[0] = %x \r\n", file_byte[0])
+     fmt.Printf("file_byte[0] = %x \r\n", file_byte[1])
+     file_len := len(file_byte)
+     fmt.Printf("file_len = %d \r\n", file_len)
 }
 
 func main() {
