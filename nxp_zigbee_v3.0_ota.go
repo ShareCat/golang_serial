@@ -7,6 +7,7 @@ import (
     "io/ioutil"
     "bufio"
     "strings"
+    "strconv"
     "time"
 )
 
@@ -82,7 +83,7 @@ func make_ota_file() {
             ota_file_byte = append(ota_file_byte, v)
         }
     }
-    printSlice(ota_file_byte)
+    //printSlice(ota_file_byte) // 打印ota_file_byte里面的内容，十进制形式
 
     // 修改ota文件头里面的文件大小
     ota_file_len = len(ota_file_byte)
@@ -93,7 +94,7 @@ func make_ota_file() {
     v4 := (ota_file_len % 0x100)
     //fmt.Printf("v1~v4: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", v1, v2, v3, v4)
     var index int = 0x34
-    //fmt.Printf("ota_file_byte: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x34], ota_file_byte[0x35], ota_file_byte[0x36], ota_file_byte[0x37])
+    //fmt.Printf("ota_file_byte[0x34~0X37]: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x34], ota_file_byte[0x35], ota_file_byte[0x36], ota_file_byte[0x37])
     ota_file_byte[index] = byte(v4)
     index++
     ota_file_byte[index] = byte(v3)
@@ -102,10 +103,32 @@ func make_ota_file() {
     index++
     ota_file_byte[index] = byte(v1)
     index++
-    //fmt.Printf("ota_file_byte: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x34], ota_file_byte[0x35], ota_file_byte[0x36], ota_file_byte[0x37])
+    //fmt.Printf("ota_file_byte[0x34~0X37]: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x34], ota_file_byte[0x35], ota_file_byte[0x36], ota_file_byte[0x37])
 
     // 修改ota文件头里面的版本
-
+    var version int
+    version, err = strconv.Atoi(bin_file_version)
+    fmt.Printf("version = 0x%08x (decimal: %d) \r\n", version, version)
+    v1 = version / 10000000
+    v2 = (version % 10000000) / 1000000
+    v3 = (version % 1000000) / 100000
+    v4 = (version % 100000) / 10000
+    v5 := (version % 10000) / 1000
+    v6 := (version % 1000) / 100
+    v7 := (version % 100) / 10
+    v8 := (version % 10)
+    fmt.Printf("v1~v8: 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x \r\n", v1, v2, v3, v4, v5, v6, v7, v8)
+    index = 0x0E
+    fmt.Printf("ota_file_byte[0x0E~0X11]: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x0E], ota_file_byte[0x0F], ota_file_byte[0x10], ota_file_byte[0x11])
+    ota_file_byte[index] = byte(v7) * 16 + byte(v8)
+    index++
+    ota_file_byte[index] = byte(v5) * 16 + byte(v6)
+    index++
+    ota_file_byte[index] = byte(v3) * 16 + byte(v4)
+    index++
+    ota_file_byte[index] = byte(v1) * 16 + byte(v2)
+    index++
+    fmt.Printf("ota_file_byte[0x0E~0X11]: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x0E], ota_file_byte[0x0F], ota_file_byte[0x10], ota_file_byte[0x11])
 
     // 文件写入保存
     err = ioutil.WriteFile(ota_file_name, ota_file_byte, 0666) //写入文件(字节数组)
@@ -114,6 +137,7 @@ func make_ota_file() {
     f.Close()
 }
 
+var bin_file_name, bin_file_version string
 /*
  * 从配置文件获取目标bin文件的名字和版本
  */
@@ -152,6 +176,7 @@ func get_config_file() (string, string) {
     bin_file_name = strings.Replace(bin_file_name, "\n", "", -1)
     bin_file_version = strings.Replace(bin_file_version, "\r", "", -1)
     bin_file_version = strings.Replace(bin_file_version, "\n", "", -1)
+    bin_file_version = strings.Replace(bin_file_version, ".", "", -1)
     return bin_file_name, bin_file_version
 }
 
@@ -178,7 +203,7 @@ func get_bin_file(name string) {
 
 func main() {
     // 读取配置文件，得到目标bin文件名和版本
-    bin_file_name, bin_file_version := get_config_file()
+    bin_file_name, bin_file_version = get_config_file()
     fmt.Print("bin_file_name = ", bin_file_name, "\r\n")      // 打印bin文件名字
     fmt.Print("bin_file_version = ", bin_file_version, "\r\n")// 打印bin文件版本
 
