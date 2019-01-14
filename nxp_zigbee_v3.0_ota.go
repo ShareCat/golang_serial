@@ -166,8 +166,14 @@ func get_bin_file(name string) {
     defer f.Close()
 
     bin_file_byte, err = ioutil.ReadAll(f)
-    fmt.Println("Success Open File")
     bin_file_len = len(bin_file_byte)
+
+    //fmt.Println("Success Open File")
+    //fmt.Printf("bin_file_len = %d \r\n", bin_file_len)
+    //fmt.Printf("bin_file_byte[0] = 0x%02x \r\n", bin_file_byte[0])
+    //fmt.Printf("bin_file_byte[1] = 0x%02x \r\n", bin_file_byte[1])
+    //fmt.Printf("bin_file_byte[%d] = 0x%02x \r\n", bin_file_len - 2, bin_file_byte[bin_file_len - 2])
+    //fmt.Printf("bin_file_byte[%d] = 0x%02x \r\n", bin_file_len - 1, bin_file_byte[bin_file_len - 1])
 }
 
 func main() {
@@ -178,12 +184,7 @@ func main() {
 
     // 读取目标bin文件到内存
     get_bin_file(bin_file_name)
-    fmt.Printf("bin_file_len = %d \r\n", bin_file_len)
-    fmt.Printf("bin_file_byte[0] = 0x%02x \r\n", bin_file_byte[0])
-    fmt.Printf("bin_file_byte[1] = 0x%02x \r\n", bin_file_byte[1])
-    fmt.Printf("bin_file_byte[%d] = 0x%02x \r\n", bin_file_len - 2, bin_file_byte[bin_file_len - 2])
-    fmt.Printf("bin_file_byte[%d] = 0x%02x \r\n", bin_file_len - 1, bin_file_byte[bin_file_len - 1])
-    //printSlice(bin_file_byte)
+
     // 生成目标ota文件
     make_ota_file()
 
