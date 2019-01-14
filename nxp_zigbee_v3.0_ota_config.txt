@@ -1,0 +1,3 @@
+zigbee.bin
+1.0.3
+# 第一行是zigbee固件的文件名，第二行是zigbee固件的版本
