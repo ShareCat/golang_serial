@@ -40,7 +40,7 @@ func PathExists(path string) (bool, error) {
     return false, err
 }
 
-var ota_file_name string = "zigbee.ota"
+var ota_file_name string
 // ota文件的特征头
 var ota_file_byte = []byte{ 0x1E, 0xF1, 0xEE, 0x0B, 0x00, 0x01, 0x38, 0x00,
                             0x00, 0x00, 0x37, 0x10, 0x01, 0x01, 0x03, 0x01,
@@ -51,18 +51,18 @@ var ota_file_byte = []byte{ 0x1E, 0xF1, 0xEE, 0x0B, 0x00, 0x01, 0x38, 0x00,
                             0x30, 0x30, 0x30, 0x30, 0x72, 0x1F, 0x03, 0x00,
                             0x00, 0x00, 0xB2, 0x09, 0x03, 0x00}
 var ota_file_len int
-func make_ota_file() {
+func make_ota_file(name string) {
     //fmt.Println("make_ota_file")
     var exist bool
     var err error
-    exist, err = PathExists(ota_file_name)
+    exist, err = PathExists(name)
     if exist == true {
         //fmt.Println("ota file exist")
         // 如果已经发现当前目录有一个同名的文件，则先删除
         var err1 error
-        err1 = os.Remove(ota_file_name)
+        err1 = os.Remove(name)
         check(err1)
-        fmt.Println("ota file delete \r\n")
+        //fmt.Println("ota file delete \r\n")
     } else {
         //fmt.Println("ota file not exist")
         //fmt.Println(err)
@@ -71,7 +71,7 @@ func make_ota_file() {
 
     // 可以创建目标ota文件了
     var f *os.File
-    f, err = os.Create(ota_file_name) // 创建文件
+    f, err = os.Create(name) // 创建文件
     check(err)
 
     // 复制bin文件到ota文件，注意忽略bin文件前4个字节
@@ -86,7 +86,7 @@ func make_ota_file() {
 
     // 修改ota文件头里面的文件大小
     ota_file_len = len(ota_file_byte)
-    fmt.Printf("ota_file_len = 0x%08x (decimal: %d) \r\n", ota_file_len, ota_file_len)
+    //fmt.Printf("ota_file_len = 0x%08x (decimal: %d) \r\n", ota_file_len, ota_file_len)
     v1 := ota_file_len / 0x1000000
     v2 := (ota_file_len % 0x1000000) / 0x10000
     v3 := (ota_file_len % 0x1000000) / 0x100
@@ -107,7 +107,7 @@ func make_ota_file() {
     // 修改ota文件头里面的版本
     var version int
     version, err = strconv.Atoi(bin_file_version)
-    fmt.Printf("version = 0x%08x (decimal: %d) \r\n", version, version)
+    //fmt.Printf("version = 0x%08x (decimal: %d) \r\n", version, version)
     v1 = version / 10000000
     v2 = (version % 10000000) / 1000000
     v3 = (version % 1000000) / 100000
@@ -116,9 +116,9 @@ func make_ota_file() {
     v6 := (version % 1000) / 100
     v7 := (version % 100) / 10
     v8 := (version % 10)
-    fmt.Printf("v1~v8: 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x \r\n", v1, v2, v3, v4, v5, v6, v7, v8)
+    //fmt.Printf("v1~v8: 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x \r\n", v1, v2, v3, v4, v5, v6, v7, v8)
     index = 0x0E
-    fmt.Printf("ota_file_byte[0x0E~0X11]: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x0E], ota_file_byte[0x0F], ota_file_byte[0x10], ota_file_byte[0x11])
+    //fmt.Printf("ota_file_byte[0x0E~0X11]: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x0E], ota_file_byte[0x0F], ota_file_byte[0x10], ota_file_byte[0x11])
     ota_file_byte[index] = byte(v7) * 16 + byte(v8)
     index++
     ota_file_byte[index] = byte(v5) * 16 + byte(v6)
@@ -127,10 +127,10 @@ func make_ota_file() {
     index++
     ota_file_byte[index] = byte(v1) * 16 + byte(v2)
     index++
-    fmt.Printf("ota_file_byte[0x0E~0X11]: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x0E], ota_file_byte[0x0F], ota_file_byte[0x10], ota_file_byte[0x11])
+    //fmt.Printf("ota_file_byte[0x0E~0X11]: 0x%02x 0x%02x 0x%02x 0x%02x \r\n", ota_file_byte[0x0E], ota_file_byte[0x0F], ota_file_byte[0x10], ota_file_byte[0x11])
 
     // 文件写入保存
-    err = ioutil.WriteFile(ota_file_name, ota_file_byte, 0666) //写入文件(字节数组)
+    err = ioutil.WriteFile(name, ota_file_byte, 0666) //写入文件(字节数组)
     check(err)
 
     f.Close()
@@ -203,12 +203,19 @@ func get_bin_file(name string) {
 func main() {
     // 读取配置文件，得到目标bin文件名和版本
     bin_file_name, bin_file_version = get_config_file()
+    // 输出的文件要和原始bin文件名字一样，只是后缀改为".ota"
+    ota_file_name = bin_file_name
+    // 查看名字里面有几个".bin"
+    _bin_count := strings.Count(ota_file_name, ".bin")
+    // 只替换最后的后缀".bin"为".ota"
+    ota_file_name = strings.Replace(ota_file_name, ".bin", ".ota", _bin_count)
     fmt.Print("bin_file_name = ", bin_file_name, "\r\n")      // 打印bin文件名字
     fmt.Print("bin_file_version = ", bin_file_version, "\r\n")// 打印bin文件版本
+    fmt.Print("ota_file_name = ", ota_file_name, "\r\n")      // 打印ota文件名字
 
     // 读取目标bin文件到内存
     get_bin_file(bin_file_name)
 
     // 生成目标ota文件
-    make_ota_file()
+    make_ota_file(ota_file_name)
 }
