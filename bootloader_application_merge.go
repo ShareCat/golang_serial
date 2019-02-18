@@ -216,6 +216,6 @@ func main() {
         panic("boot_file > 0x5000 kbyte")
     }
 
-    // 生成目标ota文件
+    // 生成目标文件
     get_new_bin_file(new_bin_file_name)
 }
