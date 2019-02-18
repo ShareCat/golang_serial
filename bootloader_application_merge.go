@@ -46,7 +46,7 @@ func PathExists(path string) (bool, error) {
     return false, err
 }
 
-var config_file_name string = "CMCC-NG1A_config.txt"    // 配置文件名
+var config_file_name string = "bootloader_application_merge_config.txt"    // 配置文件名
 var new_bin_file_name string = "CMCC-NG1A.bin"
 var app_bin_file_name, boot_bin_file_name string
 var boot_area_max int = 0x5000
