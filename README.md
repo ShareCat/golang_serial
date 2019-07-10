@@ -1,2 +1,2 @@
 # golang_serial
-A serial monitor writing with golang
+A serial monitor coding with Golang
