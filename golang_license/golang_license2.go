@@ -84,7 +84,6 @@ func main() {
 	var err error
 	exist, err = PathExists(fileName)
 	if exist == true {
-		//fmt.Println("ota file exist")
 		// 如果已经发现当前目录有一个同名的文件，则先删除
 		var err1 error
 		err1 = os.Remove(fileName)
