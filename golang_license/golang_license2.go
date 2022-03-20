@@ -128,4 +128,5 @@ func main() {
 	}
 	defer dstFile.Close()
 	dstFile.WriteString(license_code)
+	ShowMessage2("OK!", "授权成功，授权码文件：license_code.txt")
 }
