@@ -1,4 +1,4 @@
-### golang 程序运行影藏dos黑窗口
+### golang 程序运行隐藏dos黑窗口
 
 通过go的标准库exec调用cmd命令时会闪弹黑窗口，为解决此问题在windows下可以用win32 API 的 WinExec。
 
